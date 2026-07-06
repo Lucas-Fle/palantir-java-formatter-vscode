@@ -62,6 +62,25 @@ class ProtocolServerTest {
     }
 
     @Test
+    void rejectsFractionalProtocolVersion() throws Exception {
+        JsonObject response = exchange(
+                """
+                {"protocolVersion":1.5,"id":"bad-version","method":"initialize","params":{}}
+                """);
+        assertEquals("INVALID_REQUEST", response.getAsJsonObject("error").get("code").getAsString());
+    }
+
+    @Test
+    void rejectsUnsupportedRequestProperties() throws Exception {
+        JsonObject response = exchange(
+                """
+                {"protocolVersion":1,"id":"extra","method":"initialize","params":{},"unexpected":true}
+                """);
+        assertEquals("extra", response.get("id").getAsString());
+        assertEquals("INVALID_REQUEST", response.getAsJsonObject("error").get("code").getAsString());
+    }
+
+    @Test
     void keepsStdoutProtocolOnlyAndDoesNotLogSource() throws Exception {
         String secret = "DO_NOT_LOG_THIS_SOURCE";
         ByteArrayOutputStream output = new ByteArrayOutputStream();

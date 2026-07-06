@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lucasfleury/palantir-java-format-worker"
+    "url": "https://github.com/Lucas-Fle/palantir-java-formatter-vscode"
   },
   "engines": {
     "vscode": "^1.96.0"
@@ -69,11 +69,12 @@
     }
   },
   "scripts": {
+    "generate:metadata": "node scripts/generate-metadata.mjs",
     "clean": "node scripts/clean.mjs",
     "build:worker": "node scripts/build-worker.mjs",
     "copy:worker": "node scripts/copy-worker.mjs",
-    "check:types": "tsc --noEmit",
-    "lint": "eslint extension",
+    "check:types": "npm run generate:metadata && tsc --noEmit",
+    "lint": "npm run generate:metadata && eslint extension",
     "build:extension": "npm run check:types && node esbuild.mjs --production",
     "compile:tests": "tsc -p tsconfig.test.json",
     "test:unit": "vitest run",

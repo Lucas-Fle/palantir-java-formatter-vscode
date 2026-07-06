@@ -22,8 +22,8 @@ describe("WorkerClient", () => {
     const client = new WorkerClient(process.asChild());
     const firstRequest = createRequest("formatDocument", { source: "first" });
     const secondRequest = createRequest("formatDocument", { source: "second" });
-    const first = client.request<{ formatted: string }>(firstRequest, 1_000);
-    const second = client.request<{ formatted: string }>(secondRequest, 1_000);
+    const first = client.request(firstRequest, 1_000);
+    const second = client.request(secondRequest, 1_000);
 
     process.stdout.write(
       `${JSON.stringify({ protocolVersion: 1, id: secondRequest.id, result: { formatted: "2" } })}\n`
@@ -51,6 +51,48 @@ describe("WorkerClient", () => {
     await expect(pending).rejects.toEqual(
       expect.objectContaining<Partial<WorkerProtocolError>>({ code: "FORMAT_ERROR" })
     );
+  });
+
+  it("ignores responses containing both result and error", async () => {
+    vi.useFakeTimers();
+    const process = new FakeProcess();
+    const warning = vi.fn();
+    const client = new WorkerClient(process.asChild(), warning);
+    const request = createRequest("initialize", {});
+    const pending = client.request(request, 50);
+    process.stdout.write(
+      `${JSON.stringify({
+        protocolVersion: 1,
+        id: request.id,
+        result: {},
+        error: { code: "INVALID", message: "invalid" }
+      })}\n`
+    );
+    expect(warning).toHaveBeenCalledWith("Worker emitted an invalid protocol response.");
+    const assertion = expect(pending).rejects.toThrow("timed out");
+    await vi.advanceTimersByTimeAsync(51);
+    await assertion;
+    vi.useRealTimers();
+  });
+
+  it("ignores malformed protocol errors", () => {
+    const process = new FakeProcess();
+    const warning = vi.fn();
+    new WorkerClient(process.asChild(), warning);
+    process.stdout.write(
+      `${JSON.stringify({ protocolVersion: 1, id: "request", error: { code: "INVALID" } })}\n`
+    );
+    expect(warning).toHaveBeenCalledWith("Worker emitted an invalid protocol response.");
+  });
+
+  it("ignores malformed protocol results", () => {
+    const process = new FakeProcess();
+    const warning = vi.fn();
+    new WorkerClient(process.asChild(), warning);
+    process.stdout.write(
+      `${JSON.stringify({ protocolVersion: 1, id: "request", result: { formatted: 42 } })}\n`
+    );
+    expect(warning).toHaveBeenCalledWith("Worker emitted an invalid protocol response.");
   });
 
   it("times out a request", async () => {

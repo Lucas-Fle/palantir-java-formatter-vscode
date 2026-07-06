@@ -1,7 +1,5 @@
-export const EXTENSION_VERSION = "0.1.0";
-export const FORMATTER_VERSION = "2.91.0";
 export const PROTOCOL_VERSION = 1;
-export const WORKER_JAR_NAME = "palantir-formatter-worker.jar";
+export { FORMATTER_VERSION, WORKER_JAR_NAME } from "./generatedMetadata";
 
 export const JAVAC_EXPORTS = [
   "jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",

@@ -11,7 +11,11 @@ import {
 import { readConfiguration } from "./configuration";
 import { configuredJavaExecutable, validateJava } from "./javaRuntime";
 import type { Logger } from "./logger";
-import { createRequest, type FormatDocumentResult, type InitializeResult } from "./protocol";
+import {
+  createRequest,
+  isFormatDocumentResult,
+  isInitializeResult
+} from "./protocol";
 import { WorkerClient } from "./workerClient";
 
 export type WorkerState = "stopped" | "starting" | "ready" | "stopping" | "failed";
@@ -51,10 +55,13 @@ export class WorkerManager implements vscode.Disposable {
 
   public async formatDocument(source: string): Promise<string> {
     await this.ensureReady();
-    const result = await this.requireClient().request<FormatDocumentResult>(
+    const result = await this.requireClient().request(
       createRequest("formatDocument", { source }),
       REQUEST_TIMEOUT_MS
     );
+    if (!isFormatDocumentResult(result)) {
+      throw new Error("Worker returned an invalid formatDocument result.");
+    }
     return result.formatted;
   }
 
@@ -166,10 +173,13 @@ export class WorkerManager implements vscode.Disposable {
       });
       child.once("exit", (code, signal) => this.handleExit(child, code, signal));
 
-      const initialized = await client.request<InitializeResult>(
+      const initialized = await client.request(
         createRequest("initialize", {}),
         STARTUP_TIMEOUT_MS
       );
+      if (!isInitializeResult(initialized)) {
+        throw new Error("Worker returned an invalid initialize result.");
+      }
       this.assertLifecycleCurrent(generation);
       if (initialized.formatterVersion !== FORMATTER_VERSION) {
         throw new Error(

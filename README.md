@@ -125,7 +125,7 @@ Elle :
    Palantir annoncée ;
 3. refuse un JAR absent ou plus ancien que les sources ;
 4. exécute lint, type-check, tests TypeScript et tests VS Code ;
-5. crée `artifacts/palantir-java-format-worker-0.1.0.vsix` ;
+5. crée `artifacts/<nom-extension>-<version>.vsix` ;
 6. inspecte le VSIX et échoue si le worker n’y figure pas.
 
 Sous Linux sans session graphique, lancer les tests VS Code avec Xvfb, comme

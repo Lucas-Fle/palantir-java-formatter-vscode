@@ -2,7 +2,8 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
-const root = path.resolve(import.meta.dirname, "..");
+import { root } from "./project-metadata.mjs";
+
 const worker = path.join(root, "worker");
 const wrapper = path.join(worker, ".mvn", "wrapper", "maven-wrapper.jar");
 

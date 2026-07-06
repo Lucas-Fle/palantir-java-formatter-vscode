@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/lucasfleury/palantir-java-format-worker/protocol/v1",
+  "$id": "https://github.com/Lucas-Fle/palantir-java-formatter-vscode/protocol/v1",
   "title": "Palantir Java Format Worker Protocol v1",
   "oneOf": [
     {
@@ -56,7 +56,19 @@
             "null"
           ]
         },
-        "result": {},
+        "result": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/initializeResult"
+            },
+            {
+              "$ref": "#/$defs/formatDocumentResult"
+            },
+            {
+              "$ref": "#/$defs/shutdownResult"
+            }
+          ]
+        },
         "error": {
           "type": "object",
           "required": [
@@ -87,6 +99,38 @@
         }
       ],
       "additionalProperties": false
+    },
+    "initializeResult": {
+      "type": "object",
+      "required": [
+        "workerVersion",
+        "formatterVersion"
+      ],
+      "properties": {
+        "workerVersion": {
+          "type": "string"
+        },
+        "formatterVersion": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "formatDocumentResult": {
+      "type": "object",
+      "required": [
+        "formatted"
+      ],
+      "properties": {
+        "formatted": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "shutdownResult": {
+      "type": "object",
+      "maxProperties": 0
     }
   }
 }

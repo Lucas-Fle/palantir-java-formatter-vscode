@@ -2,9 +2,15 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
-const root = path.resolve(import.meta.dirname, "..");
+import {
+  extensionName,
+  extensionVersion,
+  root,
+  workerJarName
+} from "./project-metadata.mjs";
+
 const artifactDirectory = path.join(root, "artifacts");
-const vsix = path.join(artifactDirectory, "palantir-java-format-worker-0.1.0.vsix");
+const vsix = path.join(artifactDirectory, `${extensionName}-${extensionVersion}.vsix`);
 
 function run(command, args) {
   const result = spawnSync(command, args, {
@@ -46,7 +52,7 @@ if (listing.status !== 0) {
 }
 const packagedFiles = new Set(listing.stdout.split(/\r?\n/u));
 for (const requiredEntry of [
-  "extension/dist/worker/palantir-formatter-worker.jar",
+  `extension/dist/worker/${workerJarName}`,
   "extension/THIRD_PARTY_NOTICES.txt"
 ]) {
   if (!packagedFiles.has(requiredEntry)) {

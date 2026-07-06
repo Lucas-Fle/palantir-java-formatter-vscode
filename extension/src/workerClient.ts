@@ -36,22 +36,22 @@ export class WorkerClient {
     process.once("error", (error) => this.close(error));
   }
 
-  public request<TResult>(
+  public request(
     request: ProtocolRequest,
     timeoutMs: number
-  ): Promise<TResult> {
+  ): Promise<unknown> {
     if (this.closed) {
       return Promise.reject(new Error("Formatter worker is not running."));
     }
 
-    return new Promise<TResult>((resolve, reject) => {
+    return new Promise<unknown>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(request.id);
         reject(new Error(`Formatter worker request '${request.method}' timed out after ${timeoutMs} ms.`));
       }, timeoutMs);
 
       this.pending.set(request.id, {
-        resolve: (result) => resolve(result as TResult),
+        resolve,
         reject,
         timer
       });
@@ -98,7 +98,9 @@ export class WorkerClient {
 
     const response = parsed;
     if (response.id === null) {
-      this.onProtocolWarning(response.error?.message ?? "Worker returned an uncorrelated response.");
+      this.onProtocolWarning(
+        "error" in response ? response.error.message : "Worker returned an uncorrelated response."
+      );
       return;
     }
 
@@ -110,7 +112,7 @@ export class WorkerClient {
 
     clearTimeout(pending.timer);
     this.pending.delete(response.id);
-    if (response.error !== undefined) {
+    if ("error" in response) {
       pending.reject(new WorkerProtocolError(response.error.code, response.error.message));
     } else {
       pending.resolve(response.result);

@@ -16,12 +16,19 @@ export interface ProtocolError {
   message: string;
 }
 
-export interface ProtocolResponse<TResult = unknown> {
+interface ProtocolSuccess<TResult = unknown> {
   protocolVersion: number;
   id: string | null;
-  result?: TResult;
-  error?: ProtocolError;
+  result: TResult;
 }
+
+interface ProtocolFailure {
+  protocolVersion: number;
+  id: string | null;
+  error: ProtocolError;
+}
+
+export type ProtocolResponse<TResult = unknown> = ProtocolSuccess<TResult> | ProtocolFailure;
 
 export interface ProtocolRequest<TParams = unknown> {
   protocolVersion: number;
@@ -40,13 +47,70 @@ export function createRequest<TParams>(method: string, params: TParams): Protoco
 }
 
 export function isProtocolResponse(value: unknown): value is ProtocolResponse {
-  if (typeof value !== "object" || value === null) {
+  if (!isRecord(value)) {
     return false;
   }
-  const candidate = value as Record<string, unknown>;
+  if (
+    value.protocolVersion !== PROTOCOL_VERSION ||
+    (typeof value.id !== "string" && value.id !== null)
+  ) {
+    return false;
+  }
+
+  const hasResult = Object.hasOwn(value, "result");
+  const hasError = Object.hasOwn(value, "error");
+  if (hasResult === hasError) {
+    return false;
+  }
+  if (hasResult) {
+    return (
+      hasExactKeys(value, ["protocolVersion", "id", "result"]) &&
+      (isInitializeResult(value.result) ||
+        isFormatDocumentResult(value.result) ||
+        isShutdownResult(value.result))
+    );
+  }
   return (
-    candidate.protocolVersion === PROTOCOL_VERSION &&
-    (typeof candidate.id === "string" || candidate.id === null) &&
-    (candidate.result !== undefined || candidate.error !== undefined)
+    hasExactKeys(value, ["protocolVersion", "id", "error"]) &&
+    isProtocolError(value.error)
   );
+}
+
+export function isInitializeResult(value: unknown): value is InitializeResult {
+  return (
+    isRecord(value) &&
+    hasExactKeys(value, ["workerVersion", "formatterVersion"]) &&
+    typeof value.workerVersion === "string" &&
+    typeof value.formatterVersion === "string"
+  );
+}
+
+export function isFormatDocumentResult(value: unknown): value is FormatDocumentResult {
+  return (
+    isRecord(value) &&
+    hasExactKeys(value, ["formatted"]) &&
+    typeof value.formatted === "string"
+  );
+}
+
+function isShutdownResult(value: unknown): value is Record<string, never> {
+  return isRecord(value) && hasExactKeys(value, []);
+}
+
+function isProtocolError(value: unknown): value is ProtocolError {
+  return (
+    isRecord(value) &&
+    hasExactKeys(value, ["code", "message"]) &&
+    typeof value.code === "string" &&
+    typeof value.message === "string"
+  );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function hasExactKeys(value: Record<string, unknown>, expected: readonly string[]): boolean {
+  const keys = Object.keys(value);
+  return keys.length === expected.length && expected.every((key) => Object.hasOwn(value, key));
 }

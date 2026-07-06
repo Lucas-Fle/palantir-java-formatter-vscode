@@ -3,17 +3,20 @@ import {
   copyFileSync,
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
   statSync
 } from "node:fs";
 import path from "node:path";
 
-const FORMATTER_VERSION = "2.91.0";
-const root = path.resolve(import.meta.dirname, "..");
-const source = path.join(root, "worker", "target", "palantir-formatter-worker.jar");
+import {
+  formatterVersion,
+  root,
+  workerJarName
+} from "./project-metadata.mjs";
+
+const source = path.join(root, "worker", "target", workerJarName);
 const destinationDirectory = path.join(root, "dist", "worker");
-const destination = path.join(destinationDirectory, "palantir-formatter-worker.jar");
+const destination = path.join(destinationDirectory, workerJarName);
 const pomPath = path.join(root, "worker", "pom.xml");
 const noticesPath = path.join(root, "THIRD_PARTY_NOTICES.txt");
 
@@ -38,16 +41,6 @@ if (statSync(source).mtimeMs < newestInput) {
   throw new Error("Worker JAR is older than its sources, pom.xml, or third-party notices.");
 }
 
-const pom = readFileSync(pomPath, "utf8");
-const pomVersion = /<palantir-java-format\.version>([^<]+)<\/palantir-java-format\.version>/u.exec(
-  pom
-)?.[1];
-if (pomVersion !== FORMATTER_VERSION) {
-  throw new Error(
-    `pom.xml builds Palantir ${String(pomVersion)}, expected announced version ${FORMATTER_VERSION}.`
-  );
-}
-
 const java = process.env.JAVA_HOME
   ? path.join(process.env.JAVA_HOME, "bin", process.platform === "win32" ? "java.exe" : "java")
   : process.platform === "win32"
@@ -69,9 +62,9 @@ if (probe.status !== 0) {
 }
 const firstLine = probe.stdout.trim().split(/\r?\n/u)[0];
 const response = JSON.parse(firstLine);
-if (response.result?.formatterVersion !== FORMATTER_VERSION) {
+if (response.result?.formatterVersion !== formatterVersion) {
   throw new Error(
-    `Worker reports Palantir ${String(response.result?.formatterVersion)}, expected ${FORMATTER_VERSION}.`
+    `Worker reports Palantir ${String(response.result?.formatterVersion)}, expected ${formatterVersion}.`
   );
 }
 
@@ -93,4 +86,4 @@ for (const requiredEntry of ["META-INF/NOTICE", "META-INF/THIRD_PARTY_NOTICES.tx
 
 mkdirSync(destinationDirectory, { recursive: true });
 copyFileSync(source, destination);
-console.log(`Copied verified Palantir ${FORMATTER_VERSION} worker to ${destination}`);
+console.log(`Copied verified Palantir ${formatterVersion} worker to ${destination}`);

@@ -13,14 +13,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public final class ProtocolServer {
     static final int PROTOCOL_VERSION = 1;
-    static final String WORKER_VERSION = "0.1.0";
-    static final String FORMATTER_VERSION = "2.91.0";
+    private static final Properties METADATA = loadMetadata();
+    static final String WORKER_VERSION = metadata("worker.version");
+    static final String FORMATTER_VERSION = metadata("formatter.version");
+    private static final Set<String> REQUEST_PROPERTIES = Set.of("protocolVersion", "id", "method", "params");
 
     private final BufferedReader input;
     private final PrintWriter output;
@@ -63,6 +68,11 @@ public final class ProtocolServer {
         String id = getString(request, "id");
         if (id == null || id.isBlank()) {
             sendError(null, "INVALID_REQUEST", "Request id must be a non-empty string.");
+            return true;
+        }
+
+        if (!hasOnlyProperties(request, REQUEST_PROPERTIES)) {
+            sendError(id, "INVALID_REQUEST", "Request contains unsupported properties.");
             return true;
         }
 
@@ -159,14 +169,40 @@ public final class ProtocolServer {
             return null;
         }
         try {
-            return value.getAsInt();
-        } catch (NumberFormatException exception) {
+            BigDecimal number = value.getAsBigDecimal();
+            return number.intValueExact();
+        } catch (ArithmeticException | NumberFormatException exception) {
             return null;
         }
+    }
+
+    private static boolean hasOnlyProperties(JsonObject object, Set<String> allowedProperties) {
+        return allowedProperties.containsAll(object.keySet());
     }
 
     private static JsonObject getObject(JsonObject object, String name) {
         JsonElement value = object.get(name);
         return value != null && value.isJsonObject() ? value.getAsJsonObject() : null;
+    }
+
+    private static Properties loadMetadata() {
+        Properties properties = new Properties();
+        try (InputStream stream = ProtocolServer.class.getResourceAsStream("/worker-version.properties")) {
+            if (stream == null) {
+                throw new IllegalStateException("Missing worker-version.properties.");
+            }
+            properties.load(stream);
+        } catch (IOException exception) {
+            throw new IllegalStateException("Unable to read worker metadata.", exception);
+        }
+        return properties;
+    }
+
+    private static String metadata(String name) {
+        String value = METADATA.getProperty(name);
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException("Missing worker metadata property: " + name);
+        }
+        return value;
     }
 }
