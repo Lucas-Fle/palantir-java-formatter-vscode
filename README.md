@@ -146,6 +146,6 @@ Les principes du worker persistant et de l’organisation d’extension ont ét�
 étudiés dans les projets Dokimos et google-java-format-for-vs-code cités dans
 la demande initiale. Aucun code de ces extensions n’a été copié.
 
-Ce projet est sous licence Apache-2.0. Palantir Java Format est également
-distribué sous Apache-2.0 ; ses notices restent incluses dans les artefacts
-embarqués.
+Ce projet est sous licence Apache-2.0. Les licences et attributions des
+composants embarqués sont conservées dans les artefacts distribués et
+documentées dans [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).

@@ -41,7 +41,16 @@ const listing = spawnSync("jar", ["tf", vsix], { cwd: root, encoding: "utf8", sh
 if (listing.error) {
   throw listing.error;
 }
-if (!listing.stdout.includes("extension/dist/worker/palantir-formatter-worker.jar")) {
-  throw new Error("Packaged VSIX does not contain the worker JAR.");
+if (listing.status !== 0) {
+  throw new Error(`Unable to inspect packaged VSIX: ${listing.stderr}`);
+}
+const packagedFiles = new Set(listing.stdout.split(/\r?\n/u));
+for (const requiredEntry of [
+  "extension/dist/worker/palantir-formatter-worker.jar",
+  "extension/THIRD_PARTY_NOTICES.txt"
+]) {
+  if (!packagedFiles.has(requiredEntry)) {
+    throw new Error(`Packaged VSIX is missing required file: ${requiredEntry}`);
+  }
 }
 console.log(`Verified VSIX: ${vsix}`);

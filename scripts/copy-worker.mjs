@@ -15,6 +15,7 @@ const source = path.join(root, "worker", "target", "palantir-formatter-worker.ja
 const destinationDirectory = path.join(root, "dist", "worker");
 const destination = path.join(destinationDirectory, "palantir-formatter-worker.jar");
 const pomPath = path.join(root, "worker", "pom.xml");
+const noticesPath = path.join(root, "THIRD_PARTY_NOTICES.txt");
 
 if (!existsSync(source)) {
   throw new Error(`Worker JAR is missing: ${source}. Run npm run build:worker first.`);
@@ -30,10 +31,11 @@ function latestMtime(target) {
 
 const newestInput = Math.max(
   latestMtime(path.join(root, "worker", "src")),
-  latestMtime(pomPath)
+  latestMtime(pomPath),
+  latestMtime(noticesPath)
 );
 if (statSync(source).mtimeMs < newestInput) {
-  throw new Error("Worker JAR is older than its Java sources or pom.xml.");
+  throw new Error("Worker JAR is older than its sources, pom.xml, or third-party notices.");
 }
 
 const pom = readFileSync(pomPath, "utf8");
@@ -71,6 +73,22 @@ if (response.result?.formatterVersion !== FORMATTER_VERSION) {
   throw new Error(
     `Worker reports Palantir ${String(response.result?.formatterVersion)}, expected ${FORMATTER_VERSION}.`
   );
+}
+
+const jarListing = spawnSync("jar", ["tf", source], {
+  encoding: "utf8",
+  shell: false
+});
+if (jarListing.error) {
+  throw jarListing.error;
+}
+if (jarListing.status !== 0) {
+  throw new Error(`Unable to inspect worker JAR: ${jarListing.stderr}`);
+}
+for (const requiredEntry of ["META-INF/NOTICE", "META-INF/THIRD_PARTY_NOTICES.txt"]) {
+  if (!jarListing.stdout.split(/\r?\n/u).includes(requiredEntry)) {
+    throw new Error(`Worker JAR is missing required legal file: ${requiredEntry}`);
+  }
 }
 
 mkdirSync(destinationDirectory, { recursive: true });
