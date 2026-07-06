@@ -17,6 +17,8 @@ esbuild.mjs
 tsconfig*.json
 vitest.config.*
 package-lock.json
+CONTRIBUTING.md
+SECURITY.md
 !dist/**
 !README.md
 !CHANGELOG.md

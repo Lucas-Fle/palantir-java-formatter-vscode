@@ -3,6 +3,11 @@
 Extension VS Code de formatage Java locale, fondée sur
 [Palantir Java Format](https://github.com/palantir/palantir-java-format).
 
+> **Projet communautaire non officiel.** Cette extension n’est ni développée,
+> ni approuvée, ni sponsorisée par Palantir Technologies. Palantir et Palantir
+> Java Format sont des marques ou projets appartenant à leurs détenteurs
+> respectifs.
+
 **Bundled Palantir Java Format version: 2.91.0**
 
 L’extension enregistre un provider de formatage de document Java. Elle lance à
@@ -59,6 +64,15 @@ et traitement standard des chaînes longues.
 Les diagnostics de l’extension et `stderr` du worker sont visibles dans le
 canal de sortie **Palantir Java Format**. Le code source complet n’est jamais
 journalisé.
+
+## Support
+
+Les bugs et demandes d’évolution sont suivis dans les
+[issues GitHub](https://github.com/Lucas-Fle/palantir-java-formatter-vscode/issues).
+Avant d’ouvrir une issue, consulter le canal de sortie
+**Palantir Java Format** et joindre la version de VS Code, celle du JDK, les
+paramètres `palantirJavaFormat` utilisés et les logs pertinents sans code source
+confidentiel.
 
 ## Architecture
 
