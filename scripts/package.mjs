@@ -51,6 +51,15 @@ if (listing.status !== 0) {
   throw new Error(`Unable to inspect packaged VSIX: ${listing.stderr}`);
 }
 const packagedFiles = new Set(listing.stdout.split(/\r?\n/u));
+const packagedWorkerJars = [...packagedFiles].filter(
+  (entry) => entry.startsWith("extension/dist/worker/") && entry.endsWith(".jar")
+);
+if (
+  packagedWorkerJars.length !== 1 ||
+  packagedWorkerJars[0] !== `extension/dist/worker/${workerJarName}`
+) {
+  throw new Error(`Packaged VSIX contains unexpected worker JARs: ${packagedWorkerJars.join(", ")}`);
+}
 for (const requiredEntry of [
   `extension/dist/worker/${workerJarName}`,
   "extension/THIRD_PARTY_NOTICES.txt"

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Lucas-Fle/palantir-java-formatter-vscode/protocol/v1",
+  "$id": "https://github.com/Lucas-Fle/palantir-java-format-vscode/protocol/v1",
   "title": "Palantir Java Format Worker Protocol v1",
   "oneOf": [
     {

@@ -17,7 +17,7 @@ function pomValue(expression, label) {
 export const extensionName = packageJson.name;
 export const extensionVersion = packageJson.version;
 export const workerVersion = pomValue(
-  /<artifactId>palantir-formatter-worker<\/artifactId>\s*<version>([^<]+)<\/version>/u,
+  /<artifactId>palantir-java-format-worker<\/artifactId>\s*<version>([^<]+)<\/version>/u,
   "worker version"
 );
 export const workerJarName = `${pomValue(

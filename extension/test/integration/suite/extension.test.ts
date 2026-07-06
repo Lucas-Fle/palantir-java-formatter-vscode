@@ -36,7 +36,7 @@ function applyEdits(
 
 suite("Palantir Java Format integration", () => {
   suiteSetup(async () => {
-    const extension = vscode.extensions.getExtension("lucasfleury.palantir-java-format-worker");
+    const extension = vscode.extensions.getExtension("lucasfleury.palantir-java-format");
     assert.ok(extension, "extension is installed in the development host");
     await extension.activate();
   });
@@ -63,7 +63,7 @@ suite("Palantir Java Format integration", () => {
   });
 
   test("formats on save", async () => {
-    const extension = vscode.extensions.getExtension("lucasfleury.palantir-java-format-worker");
+    const extension = vscode.extensions.getExtension("lucasfleury.palantir-java-format");
     assert.ok(extension);
     const directory = vscode.Uri.file(path.join(extension.extensionPath, ".integration-workspace"));
     const uri = vscode.Uri.joinPath(directory, "FormatOnSave.java");
@@ -76,7 +76,7 @@ suite("Palantir Java Format integration", () => {
     await vscode.workspace.fs.writeFile(uri, Buffer.from("class FormatOnSave{}", "utf8"));
     await editorConfig.update(
       "defaultFormatter",
-      "lucasfleury.palantir-java-format-worker",
+      "lucasfleury.palantir-java-format",
       vscode.ConfigurationTarget.Global,
       true
     );

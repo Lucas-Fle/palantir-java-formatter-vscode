@@ -1,6 +1,6 @@
 {
-  "name": "palantir-java-format-worker",
-  "displayName": "Palantir Java Format Worker",
+  "name": "palantir-java-format",
+  "displayName": "Palantir Java Format",
   "description": "Formats Java locally with bundled Palantir Java Format 2.91.0.",
   "version": "0.1.0",
   "publisher": "lucasfleury",
@@ -8,11 +8,11 @@
   "icon": "assets/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Lucas-Fle/palantir-java-formatter-vscode"
+    "url": "https://github.com/Lucas-Fle/palantir-java-format-vscode"
   },
-  "homepage": "https://github.com/Lucas-Fle/palantir-java-formatter-vscode#readme",
+  "homepage": "https://github.com/Lucas-Fle/palantir-java-format-vscode#readme",
   "bugs": {
-    "url": "https://github.com/Lucas-Fle/palantir-java-formatter-vscode/issues"
+    "url": "https://github.com/Lucas-Fle/palantir-java-format-vscode/issues"
   },
   "galleryBanner": {
     "color": "#082b50",

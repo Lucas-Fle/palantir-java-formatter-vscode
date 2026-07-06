@@ -43,9 +43,9 @@ jobs:
         shell: bash
         run: |
           jar tf artifacts/*.vsix \
-            | grep 'extension/dist/worker/palantir-formatter-worker.jar'
+            | grep 'extension/dist/worker/palantir-java-format-worker.jar'
 
       - uses: actions/upload-artifact@v4
         with:
-          name: palantir-java-format-worker-${{ runner.os }}
+          name: palantir-java-format-vscode-${{ runner.os }}
           path: artifacts/*.vsix

@@ -4,6 +4,7 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
+  rmSync,
   statSync
 } from "node:fs";
 import path from "node:path";
@@ -85,5 +86,10 @@ for (const requiredEntry of ["META-INF/NOTICE", "META-INF/THIRD_PARTY_NOTICES.tx
 }
 
 mkdirSync(destinationDirectory, { recursive: true });
+for (const name of readdirSync(destinationDirectory)) {
+  if (name.endsWith(".jar") && name !== workerJarName) {
+    rmSync(path.join(destinationDirectory, name));
+  }
+}
 copyFileSync(source, destination);
 console.log(`Copied verified Palantir ${formatterVersion} worker to ${destination}`);

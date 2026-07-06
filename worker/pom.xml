@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.github.lucasfleury</groupId>
-  <artifactId>palantir-formatter-worker</artifactId>
+  <artifactId>palantir-java-format-worker</artifactId>
   <version>0.1.0</version>
   <name>Palantir Java Format Worker</name>
 
@@ -57,7 +57,7 @@
   </dependencies>
 
   <build>
-    <finalName>palantir-formatter-worker</finalName>
+    <finalName>palantir-java-format-worker</finalName>
     <resources>
       <resource>
         <directory>${project.basedir}/src/main/resources</directory>
